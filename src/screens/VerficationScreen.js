@@ -1,62 +1,28 @@
-import React, {useEffect, useState} from 'react';
-import PropertyContainer from "../components/Property/Container";
-import Header from "../components/Header/Header";
-import {Button, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity} from "react-native";
-import { Auth } from 'aws-amplify';
+import React, {useEffect} from 'react';
+import {Text} from "react-native";
+import RegisterThirdStep from "../components/User/Register/RegisterThirdStep";
+import {hideUserError, resendVerificationCode, verifyAndLoginUser } from "../redux/user/actions";
+import {useDispatch, useSelector} from "react-redux";
 
-const VerificationScreen = ({route, navigation}) => {
-    const verifyUser = () => {
-        // After retrieving the confirmation code from the user
-        Auth.confirmSignUp(username, code, {
-            // Optional. Force user confirmation irrespective of existing alias. By default set to True.
-            forceAliasCreation: true
-        }).then(data => console.log(data))
-            .catch(err => console.log(err));
+import Error from "../components/Common/Error";
+import Loading from "../components/Common/Loading";
 
-/*        Auth.resendSignUp(username).then(() => {
-            console.log('code resent successfully');
-        }).catch(e => {
-            console.log(e);
-        });*/
+const VerficationScreen = ({navigation, route}) => {
+    const {token, errors, isLoading, profile} = useSelector(state => state.user);
+    const dispatch = useDispatch();
+    const {username, password} = route.params;
+    const verify = ({code}) => {
+        dispatch(verifyAndLoginUser(username, password, code));
     };
     const resendCode = () => {
-        Auth.resendSignUp(username).then(() => {
-            console.log('code resent successfully');
-        }).catch(e => {
-            console.log(e);
-        });
+        return dispatch(resendVerificationCode(username));
     };
-    const {email, username} = route.params;
-    const [code, setCode] = useState('');
+    if(isLoading) return <Loading/>;
+    if(errors) return <Error message={errors.message} pressHandler={() => dispatch(hideUserError())} />;
+    if(token) navigation.navigate("ProfileHome");
     return (
-        <ScrollView style={styles.list}>
-            <Text>email : {email}, username: {username}</Text>
-            <TextInput style={styles.item} onChangeText={text => setCode(text)}
-                       value={code}/>
-                       <Button title={'verify'} onPress={verifyUser}/>
-
-            <TouchableOpacity onPress={resendCode}>
-                <Text>Send me another verification code</Text>
-            </TouchableOpacity>
-        </ScrollView>
+        <RegisterThirdStep verify={verify} resendCode={resendCode} />
     );
 };
-const styles = StyleSheet.create({
-    list: {
-        paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight,
-        flex: 1,
-        flexGrow: 1,
-        backgroundColor: "#E5E5E5",
 
-    },
-    item: {
-        flex: 1,
-        height: 40,
-        marginHorizontal: 33,
-        marginVertical: 18,
-        shadowColor: 'rgba(0, 0, 0, 0.14)',
-        elevation: Platform.OS === 'ios' ? 0 : 3,
-        borderRadius: 5
-    }
-});
-export default VerificationScreen;
+export default VerficationScreen;
