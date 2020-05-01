@@ -16,7 +16,7 @@ import {
     SIGN_UP_FIRST_STEP_SUCCESS, SIGN_UP_RESEND_CODE, SIGN_UP_RESEND_CODE_ERROR, SIGN_UP_RESEND_CODE_SUCCESS,
     SIGN_UP_SUCCESS,
     SIGN_UP_VERIFY,
-    SIGN_UP_VERIFY_ERROR,
+    SIGN_UP_VERIFY_ERROR, SIGN_UP_VERIFY_SIGN_IN, SIGN_UP_VERIFY_SIGN_IN_ERROR,
     SIGN_UP_VERIFY_SUCCESS
 } from "./actionTypes";
 import Amplify, {Auth} from "aws-amplify";
@@ -157,7 +157,35 @@ function* resendCode({payload}){
             yield put({type: SIGN_UP_RESEND_CODE_SUCCESS, payload: response});
     } catch (e) {
         console.log(e);
-        yield put({type: SIGN_IN_FORGOT_ERROR, payload: e});
+        yield put({type: SIGN_UP_RESEND_CODE_ERROR, payload: e});
+    }
+}
+function* verifyAndLogin({payload}){
+    console.log("oadkspoakdopakodpksaopdk");
+    const {username, password, code} = payload;
+    try {
+        const confirmResponse = yield call([Auth, 'confirmSignUp'], username, code);
+        if (confirmResponse.code && confirmResponse.message) //Sign up error response
+            yield put({type: SIGN_UP_VERIFY_ERROR, payload: {message: confirmResponse.message}});
+        else {
+            const response = yield call([Auth, 'signIn'], username, password);
+            if (response.code && response.message) //Sign up error response
+                yield put({type: SIGN_IN_ERROR, payload: {message: response.message}});
+            else {
+                const token = response.signInUserSession.idToken.jwtToken;
+                const currentSession = yield call(
+                    Api.sendRequest,
+                    'customers/profile',
+                    'get',
+                    null,
+                    {"Authorization": `Bearer ${token}`}
+                );
+                const {data: profile} = currentSession;
+                yield put({type: SIGN_IN_SUCCESS, payload: {profile, token}});
+            }
+        }
+    }catch (e) {
+        yield put({type: SIGN_IN_ERROR, payload: e});
     }
 }
 export default function* userSaga() {
@@ -168,6 +196,7 @@ export default function* userSaga() {
         takeLatest(SIGN_OUT, signOut),
         takeLatest(SIGN_UP_VERIFY, verify),
         takeLatest(SIGN_IN_FORGOT, recoverPassword),
-        takeLatest(SIGN_UP_RESEND_CODE, resendCode)
+        takeLatest(SIGN_UP_RESEND_CODE, resendCode),
+        takeLatest(SIGN_UP_VERIFY_SIGN_IN, verifyAndLogin)
     ]);
 }

@@ -5,7 +5,7 @@ import {
     SIGN_UP,
     SIGN_UP_FIRST_STEP,
     SIGN_UP_RESEND_CODE,
-    SIGN_UP_VERIFY, UPDATE_USER
+    SIGN_UP_VERIFY, SIGN_UP_VERIFY_SIGN_IN, UPDATE_USER
 } from "./actionTypes";
 
 export function signInUser(email,password) {
@@ -48,6 +48,12 @@ export function verifyUser(username, code) {
     return {
         type: SIGN_UP_VERIFY,
         payload: {username, code}
+    };
+}
+export function verifyAndLoginUser(username,password, code) {
+    return {
+        type: SIGN_UP_VERIFY_SIGN_IN,
+        payload: {username, password, code}
     };
 }
 export function resendVerificationCode(username){

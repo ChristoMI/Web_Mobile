@@ -11,6 +11,7 @@ import RegisterScreen from "./screens/RegisterScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import LoginScreen from "./screens/LoginScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import VerificationScreen from "./screens/VerficationScreen";
 
 const Tab = createBottomTabNavigator();
 const AppStack = createStackNavigator();
@@ -32,6 +33,7 @@ const ProfileNavigator = () => {
             <ProfileStack.Screen name="ForgotPassword" component={ForgotPasswordScreen}/>
             <ProfileStack.Screen name="Register" component={RegisterScreen}/>
             <ProfileStack.Screen name="ProfileHome" component={ProfileScreen}/>
+            <ProfileStack.Screen name="Verification" component={VerificationScreen}/>
         </ProfileStack.Navigator>
     );
 };

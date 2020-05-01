@@ -7,12 +7,14 @@ import Error from "../components/Common/Error";
 
 const ProfileScreen = ({navigation}) => {
     const {profile, isLoading, errors} = useSelector(state => state.user);
+    console.log(profile, errors);
     const dispatch = useDispatch();
     const logout = () => {
         dispatch(signOutUser());
     };
     if(isLoading) return <Loading/>;
-    if(errors || !profile) return <Error/>; //@TODO...
+    if(!profile) navigation.navigate('Login');
+    if(errors) return  <Error/>;
     return (
         <>
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
