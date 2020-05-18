@@ -19,6 +19,7 @@ export const defaultState = {
         items: []
     },
     user: {
+        type: null,
         isLoading: false,
         errors: null,
         profile: null,

@@ -1,5 +1,5 @@
 import {
-    HIDE_USER_ERROR, SET_USER_ERROR,
+    HIDE_USER_ERROR, SET_USER_ERROR, SET_USER_TYPE,
     SIGN_IN, SIGN_IN_FORGOT, SIGN_IN_GOOGLE,
     SIGN_OUT,
     SIGN_UP,
@@ -14,10 +14,10 @@ export function signInUser(email,password) {
         payload: { email,password }
     };
 }
-export function signInGoogle(token) {
+export function signInGoogle(token, type) {
     return {
         type: SIGN_IN_GOOGLE,
-        payload: {token}
+        payload: {token, type}
     };
 }
 
@@ -72,5 +72,11 @@ export function recoverPassword(username){
     return {
         type: SIGN_IN_FORGOT,
         payload: {username}
+    }
+}
+export function setUserType(type){
+    return {
+        type: SET_USER_TYPE,
+        payload: {type}
     }
 }

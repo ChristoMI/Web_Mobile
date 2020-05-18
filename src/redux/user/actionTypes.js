@@ -42,3 +42,4 @@ export const UPDATE_USER_ERROR = "UPDATE_USER:ERROR";
 
 export const HIDE_USER_ERROR = "HIDE_USER_ERROR";
 export const SET_USER_ERROR =  "SET_USER_ERROR";
+export const SET_USER_TYPE = "SET_USER_TYPE";
