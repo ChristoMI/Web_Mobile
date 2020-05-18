@@ -10,18 +10,19 @@ import {SIGN_IN_GOOGLE_ERROR} from "../redux/user/actionTypes";
 import UserType from "../components/User/Type";
 
 const LoginScreen = ({navigation}) => {
-    useFocusEffect(() => {
-        if(token) navigation.navigate('ProfileHome');
-    });
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const {token, errors, isLoading, type} = useSelector(state => state.user);
     const dispatch = useDispatch();
+    useFocusEffect(() => {
+        if(token) navigation.navigate('ProfileHome');
+    });
     const submitLogin = ({email, password}) => {
         const username = email ? email.trim() : null;
         setUsername(username);
         setPassword(password);
-        return dispatch(signInUser(username, password));
+        return dispatch(signInUser(username, password, type));
     };
     const setType = (type) => {
         dispatch(setUserType(type));
@@ -29,11 +30,7 @@ const LoginScreen = ({navigation}) => {
     const loginGoogle = async () => {
         let redirectUrl = AuthSession.getRedirectUrl();
 
-        let result = type === 'host' ?  await AuthSession.startAsync({
-                authUrl:
-                    `https://booking-user-pool-domain-host.auth.eu-central-1.amazoncognito.com/oauth2/authorize?identity_provider=Google&redirect_uri=${encodeURIComponent(redirectUrl)}&response_type=CODE&client_id=4o98dleg8r6uqi1g09ctoua1cg&scope=email%20profile%20openid`
-            })
-            :
+        let result =
             await AuthSession.startAsync({
                 authUrl:
                     `https://booking-user-pool-domain-customer.auth.eu-central-1.amazoncognito.com/oauth2/authorize?identity_provider=Google&redirect_uri=${encodeURIComponent(redirectUrl)}&response_type=CODE&client_id=5vpqdi2hlkvqjsjqd3gsama9c8&scope=email%20profile%20openid`
@@ -44,7 +41,7 @@ const LoginScreen = ({navigation}) => {
             return;
         }
         let accessToken = result.params.code;
-        dispatch(signInGoogle(accessToken, type));
+        dispatch(signInGoogle(accessToken));
     };
     const loginBackHandler = () => {
         dispatch(hideUserError());
