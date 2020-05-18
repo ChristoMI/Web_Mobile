@@ -51,16 +51,20 @@ function* signIn({payload}) {
 }
 function* singInGoogle({payload}){
     try{
-        const {token} = payload;
+        const {toke, type} = payload;
         const params = new URLSearchParams();
         params.append('grant_type', 'authorization_code');
         params.append('client_id', '5vpqdi2hlkvqjsjqd3gsama9c8');
         params.append('code', token);
         params.append('redirect_uri', 'https://auth.expo.io/@bbehrang/Bookingdesc');
-
+        const url = type === 'host'
+            ?
+            'https://booking-user-pool-domain-host.auth.eu-central-1.amazoncognito.com/oauth2/token'
+            :
+            'https://booking-user-pool-domain-customer.auth.eu-central-1.amazoncognito.com/oauth2/token';
         const response = yield call(() => axios({
             method: 'post',
-            url: 'https://booking-user-pool-domain-customer.auth.eu-central-1.amazoncognito.com/oauth2/token',
+            url: url,
             data: params,
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }));
@@ -83,7 +87,6 @@ function* singInGoogle({payload}){
 function* signUp({payload}) {
     try {
         const {fields} = payload;
-        console.log(fields);
         const {email, given_name, family_name, password} = fields;
         const response = yield call(
             [Auth, 'signUp'],
@@ -96,7 +99,6 @@ function* signUp({payload}) {
                     family_name,
                 }
             });
-        console.log(response);
         if(response.code && response.message) //Sign up error response
             yield put({type: SIGN_UP_FIRST_STEP_ERROR, payload: {message: response.message}});
         else yield put({type: SIGN_UP_FIRST_STEP_SUCCESS, payload: response});
@@ -108,7 +110,6 @@ function* signUp({payload}) {
 function* signOut() {
     try{
         const response = yield call([Auth, 'signOut'], {global: true});
-        console.log(response);
         yield put({type: SIGN_OUT_SUCCESS});
     } catch (e) {
         console.log(e);
@@ -120,7 +121,6 @@ function* verify({payload}){
     const {username, code} = payload;
     try{
         const response = yield call([Auth, 'confirmSignUp'], username, code);
-        console.log(response);
         if(response.code && response.message) //Sign up error response
             yield put({type: SIGN_UP_VERIFY_ERROR, payload: {message: response.message}});
         else yield put({type: SIGN_UP_VERIFY_SUCCESS, payload: response});
@@ -131,10 +131,8 @@ function* verify({payload}){
 }
 function* recoverPassword({payload}) {
     const {username} = payload;
-    console.log(username);
     try{
         const response = yield call([Auth, 'forgotPassword'], username);
-        console.log(response);
         if(response.code && response.message) //Sign up error response
             yield put({type: SIGN_UP_RESEND_CODE_ERROR, payload: {message: response.message}});
         else
@@ -150,7 +148,6 @@ function* resendCode({payload}){
     yield delay(2000); //Help user understand that resend is in progress
     try{
         const response = yield call([Auth, 'resendSignUp'], username);
-        console.log(response);
         if(response.code && response.message) //Sign up error response
             yield put({type: SIGN_UP_RESEND_CODE_ERROR, payload: {message: response.message}});
         else
@@ -161,7 +158,6 @@ function* resendCode({payload}){
     }
 }
 function* verifyAndLogin({payload}){
-    console.log("oadkspoakdopakodpksaopdk");
     const {username, password, code} = payload;
     try {
         const confirmResponse = yield call([Auth, 'confirmSignUp'], username, code);
