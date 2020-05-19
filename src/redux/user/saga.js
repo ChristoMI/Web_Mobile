@@ -27,16 +27,17 @@ import axios from "axios";
 
 
 function* signIn({payload}) {
-    const {email: username, password} = payload;
+    const {email: username, password, type} = payload;
     try {
         const response = yield call([Auth, 'signIn'], username, password);
         if(response.code && response.message) //Sign up error response
             yield put({type: SIGN_IN_ERROR, payload: {message: response.message}});
         else {
             const token = response.signInUserSession.idToken.jwtToken;
+            const url = type === 'host' ? 'hosts/profile' : 'customers/profile';
             const currentSession = yield call(
                 Api.sendRequest,
-                'customers/profile',
+                url,
                 'get',
                 null,
                 {"Authorization" : `Bearer ${token}`}
@@ -51,20 +52,16 @@ function* signIn({payload}) {
 }
 function* singInGoogle({payload}){
     try{
-        const {toke, type} = payload;
+        const {token} = payload;
         const params = new URLSearchParams();
         params.append('grant_type', 'authorization_code');
         params.append('client_id', '5vpqdi2hlkvqjsjqd3gsama9c8');
         params.append('code', token);
         params.append('redirect_uri', 'https://auth.expo.io/@bbehrang/Bookingdesc');
-        const url = type === 'host'
-            ?
-            'https://booking-user-pool-domain-host.auth.eu-central-1.amazoncognito.com/oauth2/token'
-            :
-            'https://booking-user-pool-domain-customer.auth.eu-central-1.amazoncognito.com/oauth2/token';
+
         const response = yield call(() => axios({
             method: 'post',
-            url: url,
+            url: `https://booking-user-pool-domain-customer.auth.eu-central-1.amazoncognito.com/oauth2/token`,
             data: params,
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }));
@@ -158,7 +155,7 @@ function* resendCode({payload}){
     }
 }
 function* verifyAndLogin({payload}){
-    const {username, password, code} = payload;
+    const {username, password, code, type} = payload;
     try {
         const confirmResponse = yield call([Auth, 'confirmSignUp'], username, code);
         if (confirmResponse.code && confirmResponse.message) //Sign up error response
@@ -169,9 +166,10 @@ function* verifyAndLogin({payload}){
                 yield put({type: SIGN_IN_ERROR, payload: {message: response.message}});
             else {
                 const token = response.signInUserSession.idToken.jwtToken;
+                const url = type === 'host' ? 'hosts/profile' : 'customers/profile';
                 const currentSession = yield call(
                     Api.sendRequest,
-                    'customers/profile',
+                    url,
                     'get',
                     null,
                     {"Authorization": `Bearer ${token}`}

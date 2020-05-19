@@ -9,7 +9,7 @@ import Error from "../components/Common/Error";
 import RegisterSuccess from "../components/User/Register/RegisterSuccess";
 
 const Register = ({navigation}) => {
-    const {token, isLoading, errors} = useSelector(state => state.user);
+    const {token, isLoading, errors, type} = useSelector(state => state.user);
     const [step, setStep] = useState(1);
     const [fields, setFields] = useState({
         email: '',
@@ -46,7 +46,7 @@ const Register = ({navigation}) => {
         return dispatch(hideUserError());
     };
     const login = () => {
-        dispatch(signInUser(fields.email, regPassword));
+        dispatch(signInUser(fields.email, regPassword, type));
         navigation.navigate('Profile', {screen: "ProfileHome"});
     };
     if (errors) return <Error message={errors.message}

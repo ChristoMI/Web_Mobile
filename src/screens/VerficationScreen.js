@@ -8,11 +8,11 @@ import Error from "../components/Common/Error";
 import Loading from "../components/Common/Loading";
 
 const VerficationScreen = ({navigation, route}) => {
-    const {token, errors, isLoading, profile} = useSelector(state => state.user);
+    const {token, errors, isLoading, profile, type} = useSelector(state => state.user);
     const dispatch = useDispatch();
     const {username, password} = route.params;
     const verify = ({code}) => {
-        dispatch(verifyAndLoginUser(username, password, code));
+        dispatch(verifyAndLoginUser(username, password, code, type));
     };
     const resendCode = () => {
         return dispatch(resendVerificationCode(username));

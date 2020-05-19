@@ -8,16 +8,16 @@ import {
     SIGN_UP_VERIFY, SIGN_UP_VERIFY_SIGN_IN, UPDATE_USER
 } from "./actionTypes";
 
-export function signInUser(email,password) {
+export function signInUser(email,password, type) {
     return {
         type: SIGN_IN,
-        payload: { email,password }
+        payload: { email, password, type }
     };
 }
-export function signInGoogle(token, type) {
+export function signInGoogle(token) {
     return {
         type: SIGN_IN_GOOGLE,
-        payload: {token, type}
+        payload: {token}
     };
 }
 
@@ -50,10 +50,10 @@ export function verifyUser(username, code) {
         payload: {username, code}
     };
 }
-export function verifyAndLoginUser(username,password, code) {
+export function verifyAndLoginUser(username,password, code, type) {
     return {
         type: SIGN_UP_VERIFY_SIGN_IN,
-        payload: {username, password, code}
+        payload: {username, password, code, type}
     };
 }
 export function resendVerificationCode(username){
