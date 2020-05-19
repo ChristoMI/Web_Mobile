@@ -17,13 +17,14 @@ import {
     SIGN_UP_SUCCESS,
     SIGN_UP_VERIFY,
     SIGN_UP_VERIFY_ERROR, SIGN_UP_VERIFY_SIGN_IN, SIGN_UP_VERIFY_SIGN_IN_ERROR,
-    SIGN_UP_VERIFY_SUCCESS
+    SIGN_UP_VERIFY_SUCCESS, UPDATE_USER, UPDATE_USER_IMAGE, UPDATE_USER_IMAGE_ERROR, UPDATE_USER_IMAGE_SUCCESS
 } from "./actionTypes";
 import Amplify, {Auth} from "aws-amplify";
 import Api from '../../services/Api';
 import awsconfig from "../../../aws-exports";
 import * as Google from "expo-google-app-auth";
 import axios from "axios";
+import {ADD_COMMENT_SUCCESS} from "../comments/actionTypes";
 
 
 function* signIn({payload}) {
@@ -182,6 +183,21 @@ function* verifyAndLogin({payload}){
         yield put({type: SIGN_IN_ERROR, payload: e});
     }
 }
+function* updateImage({payload}){
+    const {image, type, token} = payload;
+    try{
+        const url = type === 'host' ? 'hosts/profile' : 'customers/profile';
+        const response = yield call(Api.sendRequest,
+            url,
+            `put`,
+            {avatarFileName: "avatar", avatarBase64: image},
+            {"Authorization" : `Bearer ${token}`});
+        yield put({type: UPDATE_USER_IMAGE_SUCCESS, payload: response.data});
+    } catch (e) {
+        console.log(e);
+        yield put({type: UPDATE_USER_IMAGE_ERROR, payload: e});
+    }
+}
 export default function* userSaga() {
     yield all([
         takeLatest(SIGN_IN, signIn),
@@ -191,6 +207,7 @@ export default function* userSaga() {
         takeLatest(SIGN_UP_VERIFY, verify),
         takeLatest(SIGN_IN_FORGOT, recoverPassword),
         takeLatest(SIGN_UP_RESEND_CODE, resendCode),
-        takeLatest(SIGN_UP_VERIFY_SIGN_IN, verifyAndLogin)
+        takeLatest(SIGN_UP_VERIFY_SIGN_IN, verifyAndLogin),
+        takeLatest(UPDATE_USER_IMAGE, updateImage)
     ]);
 }

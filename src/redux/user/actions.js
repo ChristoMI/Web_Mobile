@@ -5,7 +5,7 @@ import {
     SIGN_UP,
     SIGN_UP_FIRST_STEP,
     SIGN_UP_RESEND_CODE,
-    SIGN_UP_VERIFY, SIGN_UP_VERIFY_SIGN_IN, UPDATE_USER
+    SIGN_UP_VERIFY, SIGN_UP_VERIFY_SIGN_IN, UPDATE_USER, UPDATE_USER_IMAGE
 } from "./actionTypes";
 
 export function signInUser(email,password, type) {
@@ -78,5 +78,11 @@ export function setUserType(type){
     return {
         type: SET_USER_TYPE,
         payload: {type}
+    }
+}
+export function updateAvatar(image, type, token){
+    return {
+        type: UPDATE_USER_IMAGE,
+        payload: {image, type, token}
     }
 }
