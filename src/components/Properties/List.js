@@ -12,17 +12,20 @@ const List = ({properties, refresh, openProperty}) => {
       setRefreshing(false);
     };
     return (
-        <FlatList style={styles.list}
-                  data={properties}
-                  keyExtractor={item => item.id}
-                  ListFooterComponent={<View style={{height: 24}}></View>}
-                  refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}
-                  renderItem={({item}) =>
-                      <TouchableOpacity style={styles.item}
-                                        onPress={() => openProperty(item)}>
-                          <Item item={item}/>
-                      </TouchableOpacity>}
-        />
+        <View style={styles.list}>
+            <FlatList
+                      data={properties}
+                      keyExtractor={item => item.id}
+                      ListFooterComponent={<View style={{height: 24}}></View>}
+                      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}
+                      renderItem={({item}) =>
+                          <TouchableOpacity style={styles.item}
+                                            onPress={() => openProperty(item)}>
+                              <Item item={item}/>
+                          </TouchableOpacity>}
+            />
+        </View>
+
 
     );
 };

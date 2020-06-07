@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import {Image, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, Image, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useSelector} from "react-redux";
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
-const Home = ({updateAvatar, profile}) => {
-    const [image, setImage] = useState(null);
+import ThemeButton from "../../Common/ThemeButton";
+const Home = ({updateAvatar, profile, logout, type, navigation}) => {
     const getPermissionAsync = async () => {
         if (Constants.platform.ios) {
             const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -31,25 +31,37 @@ const Home = ({updateAvatar, profile}) => {
             console.log(E);
         }
     };
-    console.log(profile);
+
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.title}>Your Profile</Text>
-            <View style={styles.info}>
-                <View style={styles.avatarContainer}>
-                    <View style={styles.avatar}>
-                        <Image source={{uri: profile.avatarUrl}} style={styles.avatarImage}/>
-                    </View>
-                    <TouchableOpacity activeOpacity={0.9} onPress={() => getPermissionAsync()} style={styles.links}>
-                        <Text style={styles.linkText}>Update Photo </Text>
-                    </TouchableOpacity>
-                </View>
 
-                <View style={styles.fullName}>
-                    <Text style={styles.textValues}>{profile.firstName} {profile.lastName}</Text>
-                    <Text style={styles.textValues}>{profile.email}</Text>
+            {profile && profile.name? <>
+                <Text style={styles.title}>Your Profile</Text>
+                <View style={styles.info}>
+                    <View style={styles.avatarContainer}>
+                        <View style={styles.avatar}>
+                            <Image source={{uri: profile.avatarUrl}} style={styles.avatarImage}/>
+                        </View>
+                        <TouchableOpacity activeOpacity={0.6} onPress={() => getPermissionAsync()} style={styles.links}>
+                            <Text style={styles.linkText}>Update Photo </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.fullName}>
+                        <Text style={styles.textValues}>{profile.firstName} {profile.lastName}</Text>
+                        <Text style={styles.textValues}>{profile.email}</Text>
+                    </View>
                 </View>
-            </View>
+                {type === 'host' ?
+                    <ThemeButton pressHandler={() => navigation.navigate('AddProperty')}
+                                 title={'Add a new property'}
+                                 customStyles={styles.add}
+                    />: null}
+
+                <TouchableOpacity activeOpacity={0.6} onPress={() => logout()} style={styles.links}>
+                    <Text style={styles.logout}>Logout</Text>
+                </TouchableOpacity>
+            </> : <View></View>}
 
         </ScrollView>
     );
@@ -77,6 +89,9 @@ const styles = StyleSheet.create({
         marginHorizontal: 27,
         marginTop: 30
     },
+    add:{
+        marginVertical: 40
+    },
     fullName: {
         marginLeft: 45,
     },
@@ -92,6 +107,14 @@ const styles = StyleSheet.create({
     linkText:{
         color: '#39A298',
         fontFamily: 'montserratMed',
+
+
+    },
+    logout:{
+        color: '#39A298',
+        fontFamily: 'montserratMed',
+        marginHorizontal: 27,
+        textAlign: 'center'
     },
     avatar: {
         width: 66,

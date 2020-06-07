@@ -3,9 +3,10 @@ import {Image, Text, StyleSheet, TouchableOpacity, View, Modal, Alert, Touchable
 import ThemeButton from "../Common/ThemeButton";
 import Add from "./Comments/Add";
 import AddComment from "../../containers/AddComment";
+import {useSelector} from "react-redux";
 
-const Info = ({property}) => {
-    const {cover_image_url, id, name, description} = property;
+const Info = ({property, navigation}) => {
+    const {cover_image_url, id, name, description, price, address, country, city} = property;
     const [isFullDescHidden, setIsFullDescHidden] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     useEffect(() => {
@@ -14,29 +15,6 @@ const Info = ({property}) => {
 
     return (
         <>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Hello World!</Text>
-
-                        <TouchableHighlight
-                            style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
-                            onPress={() => {
-                                setModalVisible(!modalVisible);
-                            }}
-                        >
-                            <Text style={styles.textStyle}>Hide Modal</Text>
-                        </TouchableHighlight>
-                    </View>
-                </View>
-            </Modal>
             <Image source={{uri: cover_image_url}} style={styles.image}/>
             <View style={styles.info}>
                 <Text style={[styles.infoItem, styles.name]}>{name}</Text>
@@ -50,9 +28,22 @@ const Info = ({property}) => {
                     </Text>
                 </TouchableOpacity>
             </View>
-            <View>
-                <ThemeButton title='Reserve' customStyles={styles.button}/>
+            <View style={styles.info}>
+                <Text style={styles.infoItem}>
+                    {country}
+                </Text>
+                <Text style={styles.infoItem}>
+                    {city}
+                </Text>
+                <Text style={styles.infoItem}>
+                    {address}
+                </Text>
+                <View style={{alignItems: 'flex-end'}}>
+                    <Text style={{marginRight: 20, marginTop:20, fontWeight: 'bold', fontFamily: 'montserratBold'}}>Price: {price} $</Text>
+                    <ThemeButton title='Reserve' customStyles={styles.button} pressHandler={() => navigation.navigate('Reserve')}/>
+                </View>
             </View>
+
             <Text style={styles.sectionTitle}>Comments</Text>
             <AddComment id={id} />
 
@@ -80,7 +71,8 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontFamily: 'montserratBold',
         marginLeft: 24,
-        fontSize: 15
+        fontSize: 15,
+        marginTop: 20
     },
     infoItem:{
         marginHorizontal: 10,

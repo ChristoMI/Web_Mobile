@@ -1,37 +1,50 @@
-import {all, call, put, takeLatest, delay} from "redux-saga/effects";
+import {all, call, delay, put, takeLatest} from "redux-saga/effects";
 import {
+    FETCH_USER_RESERVATIONS,
+    FETCH_USER_RESERVATIONS_ERROR,
+    FETCH_USER_RESERVATIONS_SUCCESS,
     SIGN_IN,
     SIGN_IN_ERROR,
     SIGN_IN_FORGOT,
-    SIGN_IN_FORGOT_ERROR,
-    SIGN_IN_FORGOT_SUCCESS,
     SIGN_IN_GOOGLE,
     SIGN_IN_GOOGLE_ERROR,
     SIGN_IN_GOOGLE_SUCCESS,
-    SIGN_IN_SUCCESS, SIGN_OUT, SIGN_OUT_ERROR, SIGN_OUT_SUCCESS,
-    SIGN_UP,
-    SIGN_UP_ERROR,
+    SIGN_IN_SUCCESS,
+    SIGN_OUT,
+    SIGN_OUT_ERROR,
+    SIGN_OUT_SUCCESS,
     SIGN_UP_FIRST_STEP,
     SIGN_UP_FIRST_STEP_ERROR,
-    SIGN_UP_FIRST_STEP_SUCCESS, SIGN_UP_RESEND_CODE, SIGN_UP_RESEND_CODE_ERROR, SIGN_UP_RESEND_CODE_SUCCESS,
-    SIGN_UP_SUCCESS,
+    SIGN_UP_FIRST_STEP_SUCCESS,
+    SIGN_UP_RESEND_CODE,
+    SIGN_UP_RESEND_CODE_ERROR,
+    SIGN_UP_RESEND_CODE_SUCCESS,
     SIGN_UP_VERIFY,
-    SIGN_UP_VERIFY_ERROR, SIGN_UP_VERIFY_SIGN_IN, SIGN_UP_VERIFY_SIGN_IN_ERROR,
-    SIGN_UP_VERIFY_SUCCESS, UPDATE_USER, UPDATE_USER_IMAGE, UPDATE_USER_IMAGE_ERROR, UPDATE_USER_IMAGE_SUCCESS
+    SIGN_UP_VERIFY_ERROR,
+    SIGN_UP_VERIFY_SIGN_IN,
+    SIGN_UP_VERIFY_SUCCESS,
+    UPDATE_USER_IMAGE,
+    UPDATE_USER_IMAGE_ERROR,
+    UPDATE_USER_IMAGE_SUCCESS
 } from "./actionTypes";
-import Amplify, {Auth} from "aws-amplify";
+import {Auth} from "aws-amplify";
 import Api from '../../services/Api';
-import awsconfig from "../../../aws-exports";
-import * as Google from "expo-google-app-auth";
 import axios from "axios";
-import {ADD_COMMENT_SUCCESS} from "../comments/actionTypes";
+import {
+    CANCEL_PROPERTY_BOOKING,
+    CANCEL_PROPERTY_BOOKING_ERROR,
+    CANCEL_PROPERTY_BOOKING_SUCCESS,
+    RESERVE_PROPERTY,
+    RESERVE_PROPERTY_ERROR,
+    RESERVE_PROPERTY_SUCCESS
+} from "../property/actionTypes";
 
 
 function* signIn({payload}) {
     const {email: username, password, type} = payload;
     try {
         const response = yield call([Auth, 'signIn'], username, password);
-        if(response.code && response.message) //Sign up error response
+        if (response.code && response.message) //Sign up error response
             yield put({type: SIGN_IN_ERROR, payload: {message: response.message}});
         else {
             const token = response.signInUserSession.idToken.jwtToken;
@@ -41,18 +54,19 @@ function* signIn({payload}) {
                 url,
                 'get',
                 null,
-                {"Authorization" : `Bearer ${token}`}
+                {"Authorization": `Bearer ${token}`}
             );
             const {data: profile} = currentSession;
-            yield put({ type: SIGN_IN_SUCCESS, payload: {profile, token} });
+            yield put({type: SIGN_IN_SUCCESS, payload: {profile, token}});
         }
     } catch (err) {
         console.log(err);
-        yield put({ type: SIGN_IN_ERROR, payload: err });
+        yield put({type: SIGN_IN_ERROR, payload: err});
     }
 }
-function* singInGoogle({payload}){
-    try{
+
+function* singInGoogle({payload}) {
+    try {
         const {token} = payload;
         const params = new URLSearchParams();
         params.append('grant_type', 'authorization_code');
@@ -72,16 +86,17 @@ function* singInGoogle({payload}){
             'customers/profile',
             'get',
             null,
-            {"Authorization" : `Bearer ${id_token}`}
+            {"Authorization": `Bearer ${id_token}`}
         );
         const {data: profile} = currentSession;
-        yield put({ type: SIGN_IN_GOOGLE_SUCCESS, payload: {profile, token: id_token} });
+        yield put({type: SIGN_IN_GOOGLE_SUCCESS, payload: {profile, token: id_token}});
     } catch (e) {
-         console.log(e);
+        console.log(e);
         yield put({type: SIGN_IN_GOOGLE_ERROR, payload: e});
-     }
+    }
 
 }
+
 function* signUp({payload}) {
     try {
         const {fields} = payload;
@@ -91,13 +106,13 @@ function* signUp({payload}) {
             {
                 username: email,
                 password,
-                attributes:{
+                attributes: {
                     email,
                     given_name,
                     family_name,
                 }
             });
-        if(response.code && response.message) //Sign up error response
+        if (response.code && response.message) //Sign up error response
             yield put({type: SIGN_UP_FIRST_STEP_ERROR, payload: {message: response.message}});
         else yield put({type: SIGN_UP_FIRST_STEP_SUCCESS, payload: response});
     } catch (e) {
@@ -105,8 +120,10 @@ function* signUp({payload}) {
         yield put({type: SIGN_UP_FIRST_STEP_ERROR, payload: e});
     }
 }
+
 function* signOut() {
-    try{
+    try {
+        yield delay(1000);
         const response = yield call([Auth, 'signOut'], {global: true});
         yield put({type: SIGN_OUT_SUCCESS});
     } catch (e) {
@@ -115,11 +132,12 @@ function* signOut() {
     }
 
 }
-function* verify({payload}){
+
+function* verify({payload}) {
     const {username, code} = payload;
-    try{
+    try {
         const response = yield call([Auth, 'confirmSignUp'], username, code);
-        if(response.code && response.message) //Sign up error response
+        if (response.code && response.message) //Sign up error response
             yield put({type: SIGN_UP_VERIFY_ERROR, payload: {message: response.message}});
         else yield put({type: SIGN_UP_VERIFY_SUCCESS, payload: response});
     } catch (e) {
@@ -127,11 +145,12 @@ function* verify({payload}){
         yield put({type: SIGN_UP_VERIFY_ERROR, payload: e});
     }
 }
+
 function* recoverPassword({payload}) {
     const {username} = payload;
-    try{
+    try {
         const response = yield call([Auth, 'forgotPassword'], username);
-        if(response.code && response.message) //Sign up error response
+        if (response.code && response.message) //Sign up error response
             yield put({type: SIGN_UP_RESEND_CODE_ERROR, payload: {message: response.message}});
         else
             yield put({type: SIGN_UP_RESEND_CODE_SUCCESS, payload: response});
@@ -141,12 +160,13 @@ function* recoverPassword({payload}) {
     }
 
 }
-function* resendCode({payload}){
+
+function* resendCode({payload}) {
     const {username} = payload;
     yield delay(2000); //Help user understand that resend is in progress
-    try{
+    try {
         const response = yield call([Auth, 'resendSignUp'], username);
-        if(response.code && response.message) //Sign up error response
+        if (response.code && response.message) //Sign up error response
             yield put({type: SIGN_UP_RESEND_CODE_ERROR, payload: {message: response.message}});
         else
             yield put({type: SIGN_UP_RESEND_CODE_SUCCESS, payload: response});
@@ -155,7 +175,8 @@ function* resendCode({payload}){
         yield put({type: SIGN_UP_RESEND_CODE_ERROR, payload: e});
     }
 }
-function* verifyAndLogin({payload}){
+
+function* verifyAndLogin({payload}) {
     const {username, password, code, type} = payload;
     try {
         const confirmResponse = yield call([Auth, 'confirmSignUp'], username, code);
@@ -179,23 +200,103 @@ function* verifyAndLogin({payload}){
                 yield put({type: SIGN_IN_SUCCESS, payload: {profile, token}});
             }
         }
-    }catch (e) {
+    } catch (e) {
         yield put({type: SIGN_IN_ERROR, payload: e});
     }
 }
-function* updateImage({payload}){
+
+function* updateImage({payload}) {
     const {image, type, token} = payload;
-    try{
+    try {
         const url = type === 'host' ? 'hosts/profile' : 'customers/profile';
         const response = yield call(Api.sendRequest,
             url,
             `put`,
             {avatarFileName: "avatar", avatarBase64: image},
-            {"Authorization" : `Bearer ${token}`});
+            {"Authorization": `Bearer ${token}`});
         yield put({type: UPDATE_USER_IMAGE_SUCCESS, payload: response.data});
     } catch (e) {
         console.log(e);
         yield put({type: UPDATE_USER_IMAGE_ERROR, payload: e});
+    }
+}
+function* reserveProperty({payload}) {
+    try {
+        const {token, bookingInfo} = payload;
+        const res = yield call(Api.sendRequest,
+            `/reservation`,
+            `post`,
+            bookingInfo,
+            {"Authorization": `Bearer ${token}`});
+        yield put({type: RESERVE_PROPERTY_SUCCESS, payload: res.data});
+    } catch (error) {
+        if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+        } else if (error.request) {
+            console.log(error.request);
+        } else {
+            console.log('Error', error.message);
+        }
+        yield put({type: RESERVE_PROPERTY_ERROR, payload: error});
+    }
+}
+function* fetchReservations({payload}) {
+    try {
+        const {token} = payload;
+        const response = yield call(
+            Api.sendRequest,
+            'customers/reservation',
+            'get',
+            null,
+            {"Authorization": `Bearer ${token}`}
+        );
+
+        const data = response.data;
+        yield put({type: FETCH_USER_RESERVATIONS_SUCCESS, payload: data});
+    } catch (error) {
+        if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+        } else if (error.request) {
+            console.log(error.request);
+        } else {
+            console.log('Error', error.message);
+        }
+        yield put({type: FETCH_USER_RESERVATIONS_ERROR, payload: error});
+    }
+}
+
+function* fetchPropertyNames(payload) {
+    try {
+        const response = yield call(Api.sendRequest, `/properties/${payload}`, `get`);
+    } catch (e) {
+        console.log(e);
+        yield put({type: FETCH_USER_RESERVATIONS_ERROR, payload: e});
+    }
+}
+function* cancelBooking({payload}) {
+    try {
+        const {id, token} = payload;
+        const res = yield call(Api.sendRequest,
+            `/reservation/${id}`,
+            `delete`,
+            null,
+            {"Authorization": `Bearer ${token}`});
+        yield put({type: CANCEL_PROPERTY_BOOKING_SUCCESS, payload: res.data});
+    } catch (error) {
+        if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+        } else if (error.request) {
+            console.log(error.request);
+        } else {
+            console.log('Error', error.message);
+        }
+        yield put({type: CANCEL_PROPERTY_BOOKING_ERROR, payload: error.message ? error.message : error});
     }
 }
 export default function* userSaga() {
@@ -208,6 +309,10 @@ export default function* userSaga() {
         takeLatest(SIGN_IN_FORGOT, recoverPassword),
         takeLatest(SIGN_UP_RESEND_CODE, resendCode),
         takeLatest(SIGN_UP_VERIFY_SIGN_IN, verifyAndLogin),
-        takeLatest(UPDATE_USER_IMAGE, updateImage)
+        takeLatest(UPDATE_USER_IMAGE, updateImage),
+        takeLatest(FETCH_USER_RESERVATIONS, fetchReservations),
+        takeLatest(RESERVE_PROPERTY, reserveProperty),
+        takeLatest(CANCEL_PROPERTY_BOOKING, cancelBooking)
+
     ]);
 }

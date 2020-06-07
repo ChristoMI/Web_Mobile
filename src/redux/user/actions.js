@@ -1,4 +1,5 @@
 import {
+    FETCH_USER_RESERVATIONS,
     HIDE_USER_ERROR, SET_USER_ERROR, SET_USER_TYPE,
     SIGN_IN, SIGN_IN_FORGOT, SIGN_IN_GOOGLE,
     SIGN_OUT,
@@ -84,5 +85,11 @@ export function updateAvatar(image, type, token){
     return {
         type: UPDATE_USER_IMAGE,
         payload: {image, type, token}
+    }
+}
+export function getUserReservations(token){
+    return {
+        type : FETCH_USER_RESERVATIONS,
+        payload: {token}
     }
 }

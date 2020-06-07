@@ -5,11 +5,11 @@ import {FlatList, Platform, StatusBar, StyleSheet, View} from "react-native";
 import Loading from "../Common/Loading";
 import Error from "../Common/Error";
 
-const Property = ({property, comments}) => {
+const Property = ({property, comments, navigation}) => {
     const {items} = comments;
     return (
         <FlatList
-            ListHeaderComponent={<Info property={property}/>}
+            ListHeaderComponent={<Info property={property} navigation={navigation}/>}
             ListFooterComponent={<View style={{height : 30}}/>}
             data={items}
             extraData={property}

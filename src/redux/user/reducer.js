@@ -27,10 +27,19 @@ import {
     SIGN_UP_RESEND_CODE_SUCCESS,
     SIGN_UP_RESEND_CODE_ERROR,
     SET_USER_TYPE,
-    UPDATE_USER_IMAGE, UPDATE_USER_IMAGE_SUCCESS, UPDATE_USER_IMAGE_ERROR,
+    UPDATE_USER_IMAGE,
+    UPDATE_USER_IMAGE_SUCCESS,
+    UPDATE_USER_IMAGE_ERROR,
+    FETCH_USER_RESERVATIONS,
+    FETCH_USER_RESERVATIONS_SUCCESS, FETCH_USER_RESERVATIONS_ERROR,
 
 } from "./actionTypes";
 import produce from "immer";
+import {
+    CANCEL_PROPERTY_BOOKING,
+    CANCEL_PROPERTY_BOOKING_ERROR,
+    CANCEL_PROPERTY_BOOKING_SUCCESS, RESERVE_PROPERTY, RESERVE_PROPERTY_ERROR, RESERVE_PROPERTY_SUCCESS
+} from "../property/actionTypes";
 
 export default function userReducer(state = defaultState.user, action) {
     return produce(state, draft => {
@@ -120,11 +129,16 @@ export default function userReducer(state = defaultState.user, action) {
                 draft.isLoading = false;
                 draft.token = null;
                 draft.profile = null;
+                draft.errors = null;
+                draft.type = null;
                 break;
             }
             case SIGN_OUT_ERROR: {
                 draft.isLoading = false;
                 draft.token = null;
+                draft.errors = null;
+                draft.profile = null;
+                draft.type = null;
                 break;
             }
             case SIGN_UP_RESEND_CODE:{
@@ -147,7 +161,7 @@ export default function userReducer(state = defaultState.user, action) {
             }
             case UPDATE_USER_IMAGE:{
                 draft.errors = null;
-                draft.isLoading = false;
+                draft.isLoading = true;
                 break;
             }
             case UPDATE_USER_IMAGE_SUCCESS:{
@@ -161,6 +175,10 @@ export default function userReducer(state = defaultState.user, action) {
                 draft.isLoading = false;
                 break;
             }
+            case HIDE_USER_ERROR: {
+                draft.errors = null;
+                break;
+            }
             case SET_USER_ERROR:{
                 draft.errors = action.payload;
                 break;
@@ -168,6 +186,51 @@ export default function userReducer(state = defaultState.user, action) {
             case SET_USER_TYPE:{
                 const {type} = action.payload;
                 draft.type = type;
+                break;
+            }
+            case FETCH_USER_RESERVATIONS:{
+                draft.isLoading = true;
+                break;
+            }
+            case FETCH_USER_RESERVATIONS_SUCCESS:{
+                draft.errors = null;
+                draft.isLoading = false;
+                draft.reservations = action.payload;
+                break;
+            }
+            case FETCH_USER_RESERVATIONS_ERROR:{
+                draft.errors = action.payload;
+                draft.isLoading = false;
+                break;
+            }
+            case CANCEL_PROPERTY_BOOKING:{
+                draft.isLoading = true;
+                break;
+            }
+            case CANCEL_PROPERTY_BOOKING_SUCCESS:{
+                draft.isLoading = false;
+                draft.errors = null;
+                draft.reservations = draft.reservations.filter(item => item.id !== action.payload.id);
+                break;
+            }
+            case CANCEL_PROPERTY_BOOKING_ERROR:{
+                draft.isLoading = false;
+                draft.errors = action.payload;
+                break;
+            }
+            case RESERVE_PROPERTY:{
+                draft.isLoading = true;
+                break;
+            }
+            case RESERVE_PROPERTY_SUCCESS:{
+                draft.isLoading = false;
+                draft.errors = null;
+                draft.reservations.push(action.payload);
+                break;
+            }
+            case RESERVE_PROPERTY_ERROR:{
+                draft.isLoading = false;
+                draft.errors = action.payload;
                 break;
             }
         }
