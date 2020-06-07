@@ -14,8 +14,10 @@ import {
 import {Formik} from "formik";
 import * as Yup from "yup";
 import {Button} from "react-native-paper";
+import {useSelector} from "react-redux";
 
 const Login = ({navigation, submit, loginGoogle}) => {
+    const {type} = useSelector(state => state.user);
     const signIn = (values, actions) => {
         submit(values);
     };
@@ -77,13 +79,16 @@ const Login = ({navigation, submit, loginGoogle}) => {
                             </View>
                         )}
                     </Formik>
-                    <Button
-                        color="#009688"
-                        mode="contained"
-                        style={[styles.button, styles.google]}
-                        onPress={loginGoogle}>
-                        <Text style={{lineHeight: 30}}>Sign in with google</Text>
-                    </Button>
+                    {
+                        type === 'customer' ?   <Button
+                            color="#009688"
+                            mode="contained"
+                            style={[styles.button, styles.google]}
+                            onPress={loginGoogle}>
+                            <Text style={{lineHeight: 30}}>Sign in with google</Text>
+                        </Button> : null
+                    }
+
                     <View style={styles.userActions}>
                         <TouchableOpacity style={{flex: 1}} onPress={() => navigation.navigate('ForgotPassword')}>
                             <Text style={styles.question}>Forgot Password?</Text>

@@ -12,6 +12,9 @@ import ProfileScreen from "./screens/ProfileScreen";
 import VerificationScreen from "./screens/VerficationScreen";
 import {useSelector} from "react-redux";
 import Amplify, { Auth } from 'aws-amplify';
+import AddPropertyScreen from "./screens/AddPropertyScreen";
+import ReserveScreen from "./screens/ReserveScreen";
+import ReservationsListScreen from "./screens/ReservationsListScreen";
 
 const Tab = createBottomTabNavigator();
 const AppStack = createStackNavigator();
@@ -23,6 +26,7 @@ const PropertiesNavigator = () => {
         <PropertyStack.Navigator initialRouteName="Properties" headerMode='none'>
             <PropertyStack.Screen name="Properties" component={PropertiesScreen}/>
             <PropertyStack.Screen name="Property" component={PropertyScreen}/>
+            <PropertyStack.Screen name="Reserve" component={ReserveScreen}/>
         </PropertyStack.Navigator>
     );
 };
@@ -34,6 +38,7 @@ const ProfileNavigator = () => {
             <ProfileStack.Screen name="Register" component={RegisterScreen}/>
             <ProfileStack.Screen name="ProfileHome" component={ProfileScreen}/>
             <ProfileStack.Screen name="Verification" component={VerificationScreen}/>
+            <ProfileStack.Screen name="AddProperty" component={AddPropertyScreen}/>
         </ProfileStack.Navigator>
     );
 };
@@ -41,7 +46,7 @@ const ProfileNavigator = () => {
 const BottomTabNavigator = () => {
     return (
         <Tab.Navigator
-            initialRouteName="Profile"
+            initialRouteName="Search"
             screenOptions={({route}) => ({
                 tabBarIcon: ({focused, color, size}) => {
                     let iconName;
@@ -66,7 +71,7 @@ const BottomTabNavigator = () => {
             }}
         >
             <Tab.Screen name="Search" component={PropertiesNavigator}/>
-            <Tab.Screen name="Reservations" component={PropertiesScreen}/>
+            <Tab.Screen name="Reservations" component={ReservationsListScreen}/>
             <Tab.Screen name="Profile" component={ProfileNavigator}/>
             <Tab.Screen name="More" component={ProfileScreen}/>
         </Tab.Navigator>
@@ -76,7 +81,6 @@ const BottomTabNavigator = () => {
 
 const NavigatorComponent = (props) => {
     const {type} = useSelector(state => state.user);
-    console.log(type);
     if(type){
         if(type === 'customer'){
             Auth.configure(Amplify.configure({
@@ -100,7 +104,7 @@ const NavigatorComponent = (props) => {
     }
     return (
         <NavigationContainer>
-            <AppStack.Navigator initialRouteName="SignInScreen" headerMode='none'>
+            <AppStack.Navigator headerMode='none'>
                 {
                     <AppStack.Screen
                         name="HomeNav"

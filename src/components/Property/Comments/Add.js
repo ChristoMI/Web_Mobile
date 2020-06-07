@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import {View, StyleSheet, Image, TextInput} from "react-native";
 import ThemeButton from "../../Common/ThemeButton";
+import {useSelector} from "react-redux";
 
 const Add = ({submit}) => {
-
+    const {profile} = useSelector(state => state.user);
     const submitComment = () => {
         submit(comment);
     };
@@ -12,7 +13,7 @@ const Add = ({submit}) => {
         <>
             <View style={styles.container}>
                 <View style={styles.avatar}>
-                    <Image style={styles.avatarImage}/>
+                    <Image style={styles.avatarImage} source={profile ? {uri: profile.avatarUrl} : null}/>
                 </View>
                 <View style={styles.inputContainer}>
                     <TextInput
@@ -44,13 +45,12 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         backgroundColor: "#C4C4C4",
-        borderRadius: 40
+        borderRadius:50/2
     },
     avatarImage: {
         width: 50,
         height: 50,
-        borderRadius: 50,
-        resizeMode: 'contain',
+        borderRadius: 50/2,
         alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center'

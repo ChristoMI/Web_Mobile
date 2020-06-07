@@ -1,15 +1,23 @@
 import {defaultState} from "../defaultState";
 import {
-    FETCH_COMMENTS,
-    FETCH_COMMENTS_ERROR,
-    FETCH_COMMENTS_SUCCESS,
+    ADD_PROPERTY,
+    ADD_PROPERTY_ERROR,
+    ADD_PROPERTY_SUCCESS,
+    CANCEL_PROPERTY_BOOKING,
+    CANCEL_PROPERTY_BOOKING_ERROR,
+    CANCEL_PROPERTY_BOOKING_SUCCESS,
     FETCH_PROPERTY,
     FETCH_PROPERTY_ERROR,
-    FETCH_PROPERTY_SUCCESS
+    FETCH_PROPERTY_SUCCESS,
+    RESERVE_PROPERTY,
+    Reserve_PROPERTY,
+    RESERVE_PROPERTY_ERROR,
+    RESERVE_PROPERTY_SUCCESS
 } from "./actionTypes";
 import produce from "immer";
 
 export default function propertyReducer(state = defaultState.property, action) {
+    console.log(action.type);
     return produce(state, draft => {
         switch (action.type) {
             case FETCH_PROPERTY: {
@@ -27,21 +35,24 @@ export default function propertyReducer(state = defaultState.property, action) {
                 draft.errors = action.payload;
                 break;
             }
-            case FETCH_COMMENTS: {
-                draft.comments.isLoading = true;
+            case ADD_PROPERTY:{
+                draft.isLoading = true;
                 break;
             }
-            case FETCH_COMMENTS_SUCCESS:{
-                draft.comments.isLoading = false;
-                draft.comments.items = action.payload;
-                draft.comments.errors = null;
+            case ADD_PROPERTY_SUCCESS:{
+                draft.isLoading = false;
+                draft.errors = null;
+                draft.item = action.payload;
+                draft.added = true;
                 break;
             }
-            case FETCH_COMMENTS_ERROR:{
-                draft.comments.isLoading = false;
-                draft.comments.errors = action.payload;
+            case ADD_PROPERTY_ERROR:{
+                draft.isLoading = false;
+                draft.errors = action.payload;
                 break;
             }
+
+
         }
     });
 

@@ -9,7 +9,6 @@ const Error = ({message, pressHandler, cleanUp}) => {
                 cleanUp ? cleanUp() : null;
             };
         }, [])
-
     );
     return (
         <View style={styles.container}>

@@ -8,16 +8,12 @@ import Loading from "../components/Common/Loading";
 import * as AuthSession from 'expo-auth-session';
 import {SIGN_IN_GOOGLE_ERROR} from "../redux/user/actionTypes";
 import UserType from "../components/User/Type";
-
 const LoginScreen = ({navigation}) => {
-
+    console.log('login');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const {token, errors, isLoading, type} = useSelector(state => state.user);
     const dispatch = useDispatch();
-    useFocusEffect(() => {
-        if(token) navigation.navigate('ProfileHome');
-    });
     const submitLogin = ({email, password}) => {
         const username = email ? email.trim() : null;
         setUsername(username);
@@ -55,10 +51,16 @@ const LoginScreen = ({navigation}) => {
         })
     }
 
-    if(errors) return <Error pressHandler={loginBackHandler}
+    if(errors) return <Error pressHandler={() => loginBackHandler()}
                              message={errors.message} />;
     if(isLoading) return <Loading/>;
-    if(token) navigation.navigate('ProfileHome');
+    if(token) {
+        console.log('inToken');
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'ProfileHome' }],
+        });
+    }
     if(type){
         return (
             <Login navigation={navigation} submit={submitLogin} loginGoogle={loginGoogle}/>

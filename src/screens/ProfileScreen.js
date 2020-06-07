@@ -1,24 +1,34 @@
-import React from 'react';
-import {Button, Text, View} from "react-native";
+import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {hideUserError, signOutUser} from "../redux/user/actions";
-import {Loading} from "aws-amplify-react-native";
+import {hideUserError, signOutUser, updateAvatar} from "../redux/user/actions";
 import Error from "../components/Common/Error";
 import Profile from "../components/User/Profile/Home"
+import Loading from "../components/Common/Loading";
+import LoginScreen from "./LoginScreen";
 const ProfileScreen = ({navigation}) => {
-    const {profile, isLoading, errors} = useSelector(state => state.user);
+    console.log('inProfile');
+    const {profile, isLoading, errors, type, token} = useSelector(state => state.user);
+    useEffect(() => {
+        if(!token){
+            navigation.navigate('Login');
+        }
+    },[token]);
     const dispatch = useDispatch();
     const logout = () => {
-        dispatch(hideUserError());
         dispatch(signOutUser());
+        dispatch(hideUserError());
+        navigation.navigate('Login');
+    };
+    const updateUserAvatar = (image) => {
+        dispatch(updateAvatar(image, type, token));
     };
     if(isLoading) return <Loading/>;
-    if(!profile) navigation.navigate('Login');
-    if(errors) return  <Error/>;
-    return (
-        <Profile/>
+    if(errors) return <Error/>;
+    if(profile && token) return (
+        <Profile profile={profile} type={type} updateAvatar={updateUserAvatar} logout={logout} navigation={navigation}/>
+        );
+    else return <Loading/>;
 
-    );
 };
 
 export default ProfileScreen;

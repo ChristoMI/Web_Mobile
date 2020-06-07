@@ -49,7 +49,7 @@ const PropertyScreen = ({navigation, route}) => {
                       pressHandler={()=> commentErrorBack(comments.errors)}/>;
     return (
         <KeyboardAvoidingView behavior={"height"} enabled>
-            <Property property={item} comments={comments}/>
+            <Property property={item} comments={comments} navigation={navigation}/>
         </KeyboardAvoidingView>
     );
 };

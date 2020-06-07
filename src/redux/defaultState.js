@@ -10,7 +10,9 @@ export const defaultState = {
     property: {
         isLoading: true,
         errors: null,
-        item: null
+        item: null,
+        added : false,
+        reserved: false
     },
     comments: {
         isAdding: false,
@@ -23,7 +25,7 @@ export const defaultState = {
         isLoading: false,
         errors: null,
         profile: null,
-        token: null
-
+        token: null,
+        reservations : []
     }
 };
