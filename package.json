@@ -18,7 +18,7 @@
     "@use-expo/font": "^1.0.1",
     "aws-amplify": "^2.2.6",
     "aws-amplify-react-native": "^3.2.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "deepmerge": "^4.2.2",
     "expo": "^37.0.0",
     "expo-auth-session": "^1.0.0",
